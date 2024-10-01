@@ -12,7 +12,6 @@ import gymnasium as gym
 from . import agents
 
 from .camera_cartpole import CartpoleRGBCameraEnvCfg
-from .cartpole import CartpoleEnvCfg
 
 ##
 # Register Gym environments.

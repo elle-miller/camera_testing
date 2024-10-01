@@ -2,9 +2,11 @@
 
 
 
-Reproduce camera issue
+Reproduce camera issue by running below and seeing `images` directory.
 ```
 python scripts/train.py --task ImageCartpole --headless --enable_cameras --num_envs 4
+python scripts/train.py --task ImageCartpole --headless --enable_cameras --num_envs 128
+
 ```
 
 
@@ -36,6 +38,6 @@ python source/standalone/workflows/skrl/train.py --task Isaac-Reach-Franka-v0 --
 Install `camera_testing` extension as editable package. Test if working.
 ```
 git clone git@github.com:elle-miller/camera_testing.git
-cd camera_testing
+cd camera_testing/exts/
 python -m pip install -e .
 ```
