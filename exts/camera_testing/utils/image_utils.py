@@ -33,14 +33,17 @@ def save_trajectory_gif_to_wandb(trajectory: List[torch.Tensor], wandb_session) 
     wandb_session.log({'video': wandb_session.Video(gen, fps=60)})
 
 
-def save_image(obs, img_name="lift.png", nchw=True, print_stack=False):
+def save_image(obs, img_name="lift.png", subfolder=None, nchw=True, print_stack=False):
     """
     Expects image in NCHW format, if in NHWC then set nchw=False
     """
     # filesaving 
     # img_dir = "/home/emil/code/external/IsaacLab/IsaacLabExtension/images/franka/"
     img_dir = "./images"
-
+    
+    if subfolder is not None:
+        img_dir = os.path.join(img_dir, subfolder)
+    
     if not os.path.exists(img_dir):
         os.makedirs(img_dir)
 

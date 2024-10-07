@@ -61,8 +61,8 @@ class CartpoleRGBCameraEnvCfg(DirectRLEnvCfg):
         spawn=sim_utils.PinholeCameraCfg(
             focal_length=24.0, focus_distance=400.0, horizontal_aperture=20.955, clipping_range=(0.1, 10.0)
         ),
-        width=1024,
-        height=1024,
+        width=128,
+        height=128,
     )
 
     
@@ -127,6 +127,8 @@ class CartpoleCameraEnv(DirectRLEnv):
                 "The Cartpole camera environment only supports one image type at a time but the following were"
                 f" provided: {self.cfg.tiled_camera.data_types}"
             )
+        
+        self.count = 0
 
     def close(self):
         """Cleanup for the environment."""
@@ -185,13 +187,11 @@ class CartpoleCameraEnv(DirectRLEnv):
 
     def _get_observations(self) -> dict:
         data_type = "rgb" if "rgb" in self.cfg.tiled_camera.data_types else "depth"
+        self.count += 1
         if "rgb" in self.cfg.tiled_camera.data_types:
-            camera_data = self._tiled_camera.data.output[data_type] / 255.0
-            camera_data_255 = self._tiled_camera.data.output[data_type] # / 255.0
-            
-            print(camera_data.dtype, camera_data_255.dtype, torch.max(camera_data), torch.max(camera_data_255))
-            save_image(camera_data, img_name=f"image_cartpole_1024px_torch32_n{self.num_envs}.png", nchw=False)
-            save_image(camera_data_255, img_name=f"image_cartpole_1024px_uint8_n{self.num_envs}.png", nchw=False)
+            camera_data = self._tiled_camera.data.output[data_type].clone() / 255.0
+            if self.count <= 100:
+                save_image(camera_data, img_name=f"128px_{self.count}.png", subfolder=f"{self.num_envs}_envs", nchw=False)
             # normalize the camera data for better training results
             # mean_tensor = torch.mean(camera_data, dim=(1, 2), keepdim=True)
             # camera_data -= mean_tensor
