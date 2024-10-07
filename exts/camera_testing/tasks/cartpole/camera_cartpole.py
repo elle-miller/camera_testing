@@ -61,8 +61,8 @@ class CartpoleRGBCameraEnvCfg(DirectRLEnvCfg):
         spawn=sim_utils.PinholeCameraCfg(
             focal_length=24.0, focus_distance=400.0, horizontal_aperture=20.955, clipping_range=(0.1, 10.0)
         ),
-        width=256,
-        height=256,
+        width=1024,
+        height=1024,
     )
 
     
@@ -97,8 +97,8 @@ class CartpoleDepthCameraEnvCfg(CartpoleRGBCameraEnvCfg):
         spawn=sim_utils.PinholeCameraCfg(
             focal_length=24.0, focus_distance=400.0, horizontal_aperture=20.955, clipping_range=(0.1, 20.0)
         ),
-        width=256,
-        height=256,
+        width=512,
+        height=512,
     )
 
     # env
@@ -187,6 +187,11 @@ class CartpoleCameraEnv(DirectRLEnv):
         data_type = "rgb" if "rgb" in self.cfg.tiled_camera.data_types else "depth"
         if "rgb" in self.cfg.tiled_camera.data_types:
             camera_data = self._tiled_camera.data.output[data_type] / 255.0
+            camera_data_255 = self._tiled_camera.data.output[data_type] # / 255.0
+            
+            print(camera_data.dtype, camera_data_255.dtype, torch.max(camera_data), torch.max(camera_data_255))
+            save_image(camera_data, img_name=f"image_cartpole_1024px_torch32_n{self.num_envs}.png", nchw=False)
+            save_image(camera_data_255, img_name=f"image_cartpole_1024px_uint8_n{self.num_envs}.png", nchw=False)
             # normalize the camera data for better training results
             # mean_tensor = torch.mean(camera_data, dim=(1, 2), keepdim=True)
             # camera_data -= mean_tensor
@@ -194,8 +199,6 @@ class CartpoleCameraEnv(DirectRLEnv):
             camera_data = self._tiled_camera.data.output[data_type]
             camera_data[camera_data == float("inf")] = 0
         observations = {"policy": camera_data.clone()}
-
-        save_image(camera_data, img_name=f"image_cartpole_n{self.num_envs}.png", nchw=False)
 
         if self.cfg.write_image_to_file:
             save_images_to_file(observations["policy"], f"cartpole_{data_type}.png")

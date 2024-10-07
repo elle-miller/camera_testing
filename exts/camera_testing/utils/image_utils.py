@@ -46,14 +46,17 @@ def save_image(obs, img_name="lift.png", nchw=True, print_stack=False):
 
     file_path = os.path.join(img_dir, img_name)
 
+    obs = obs.clone()
+
     # reshape to have channels at last index
     if nchw:
         obs = obs.transpose(1, -1)
 
-    nwhc_obs = obs
-    height, max_width = nwhc_obs.size()[2], nwhc_obs.size()[2]
-    nwhc_obs = np.array(nwhc_obs[0, :, :, :].cpu() * 255).astype(np.uint8)
+    if obs.dtype is torch.float32:
+        obs *= 255
+
+    obs = np.array(obs[0, :, :, :3].cpu()).astype(np.uint8)
     
     # the image needs to be in the shape [height, width, channels]
-    img = Image.fromarray(nwhc_obs[:, :, :3])
+    img = Image.fromarray(obs)
     img.save(file_path)
